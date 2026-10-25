@@ -1,0 +1,13 @@
+fixture: 08-update-ipv4-description-two-field.yaml
+
+expected:
+  status: ok
+  result: planned
+  operation: update
+  changes:
+    ipv4:
+      from: 10.0.2.1/32
+      to: 172.23.123.1/32
+    description:
+      from: IPA2026-67070134
+      to: IPA2026-66070123
