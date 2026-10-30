@@ -62,7 +62,16 @@ def delete_interface(
     try:
         if netmiko_delete is not None:
             delete_response = netmiko_delete(router, interface_name)
+            if delete_response == "deleted":
+                return {"status": "ok", "result": "deleted"}
+            elif delete_response == "not_found":
+                return {"status": "ok", "result": "not_found", "interface": None}
         else:
+            current = get_interface_state(router, interface_name)
+            if current.get("result") == "not_found":
+                return {"status": "ok", "result": "not_found", "interface": None}
+            if current.get("status") == "error":
+                return current
             from netmiko import ConnectHandler
             cisco_device = {
                 'device_type': 'cisco_ios',
@@ -72,10 +81,10 @@ def delete_interface(
             }
             with ConnectHandler(**cisco_device) as ch:
                 ch.send_config_set([f"no interface {interface_name}"])
-        if delete_response == "deleted":
-            return {"status": "ok", "result": "deleted"}
-        elif delete_response == "not_found":
-            return {"status": "ok", "result": "not_found", "interface": None}
+            after = get_interface_state(router, interface_name)
+            if after.get("result") == "not_found":
+                return {"status": "ok", "result": "deleted"}
+            return {"status": "error", "result": "backend_failed"}
     except PermissionError:
             return {"status": "error", "result": "authentication_failed"}
     except ConnectionError:

@@ -28,7 +28,7 @@ def get_interface_state(
                 password=os.environ.get("ROUTER_PASS", ""),
                 hostkey_verify=False
             ) as m:
-                m.get_config(source='running', filter=('subtree', filter_xml)).data_xml
+                xml_text = m.get_config(source='running', filter=('subtree', filter_xml)).data_xml
         root = ET.fromstring(xml_text)
         namespace = {
             "ietf-if": "urn:ietf:params:xml:ns:yang:ietf-interfaces",
