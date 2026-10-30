@@ -26,8 +26,8 @@ def get_interface_state(
         return {"status": "error", "result": "connection_failed"}
     except Exception:
         return {"status": "error", "result": "backend_failed"}
-    if not ip_info or len(ip_info) == 0:
-         return {"status": "ok", "result": "not_found", "interface": None}
+    if not isinstance(ip_info, list) or len(ip_info) == 0:
+        return {"status": "ok", "result": "not_found", "interface": None}
     else:
         data = ip_info[0]
         ip = data["ip_address"][0]
@@ -40,11 +40,13 @@ def get_interface_state(
             admin_state = "up"
         descriptions_text = None
         loopback_short = interface_name.replace("Loopback", "Lo")
-        for d in descriptions:
-            port = d.get("port", "")
-            if port == interface_name or port == loopback_short:
-                descriptions_text = d.get("description")
-                break
+        if isinstance(descriptions, list):
+            for d in descriptions:
+                if isinstance(d, dict):
+                    port = d.get("port", "")
+                    if port == interface_name or port == loopback_short:
+                        descriptions_text = d.get("description")
+                        break
         return {"status": "ok", "result": "found", "interface": {
                         "name": data["interface"],
                         "ipv4": ipv4,
