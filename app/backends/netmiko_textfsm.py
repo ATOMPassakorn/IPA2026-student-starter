@@ -18,8 +18,14 @@ def get_interface_state(
                 'password': os.environ.get("ROUTER_PASS", ""),
             }
             with ConnectHandler(**cisco_device) as ch:
-                ip_info = ch.send_command(f"show ip interface {interface_name}", use_textfsm=True)
-                descriptions = ch.send_command("show interfaces description", use_textfsm=True)
+                try:
+                    ip_info = ch.send_command(f"show ip interface {interface_name}", use_textfsm=True)
+                except Exception:
+                    ip_info = []
+                try:
+                    descriptions = ch.send_command("show interfaces description", use_textfsm=True)
+                except:
+                    descriptions = []
     except PermissionError:
             return {"status": "error", "result": "authentication_failed"}
     except ConnectionError:
